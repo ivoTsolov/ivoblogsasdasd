@@ -10,7 +10,7 @@ const bodyParser = require('body-parser')
 const mongoDB = 'mongodb://127.0.0.1/posts';
 //cors 
 const cors = require('cors');
-
+const bcrypt = require('bcrypt');
 mongoose.connect(mongoDB);
 // Get Mongoose to use the global promise library
 mongoose.Promise = global.Promise;
@@ -102,7 +102,12 @@ function deleteApost(req, res) {
 app.post('/createAccount', createAccount);
 
 function createAccount(req, res){
-  bcrypt.hash(req.body.password, 10)
+  UserModel.count({ username: req.body.username }).exists()
+  .then(exists => {
+    if(!exists)
+      return Promise.reject("user already exists")
+  })
+  .then(() => bcrypt.hash(req.body.password, 10))
   .then(password => UserModel.create({ username: req.body.username, password }))
   .then(userObj => {
     console.log(userObj);
@@ -110,8 +115,9 @@ function createAccount(req, res){
   })
   .catch(err => {
     console.error(err);
-    res.sendStatus(400);
+    res.status(400).json({ error: err });
   });
+
 }
 
 //Bind connection to error event (to get notification of connection errors)
