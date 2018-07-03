@@ -102,12 +102,9 @@ function deleteApost(req, res) {
 app.post('/createAccount', createAccount);
 
 function createAccount(req, res){
-  UserModel.count({ username: req.body.username }).exists()
-  .then(exists => {
-    if(!exists)
-      return Promise.reject("user already exists")
-  })
-  .then(() => bcrypt.hash(req.body.password, 10))
+  UserModel.findOne({username: req.body.username}).then((res)=>{
+        return  Promise.reject("user allready exists")
+  }).catch(() => bcrypt.hash(req.body.password, 10))
   .then(password => UserModel.create({ username: req.body.username, password }))
   .then(userObj => {
     console.log(userObj);
@@ -117,7 +114,6 @@ function createAccount(req, res){
     console.error(err);
     res.status(400).json({ error: err });
   });
-
 }
 
 //Bind connection to error event (to get notification of connection errors)
