@@ -1,14 +1,12 @@
-
-
 const express = require('express');
 const app = express();
 //Import the mongoose module
 const mongoose = require('mongoose');
 // Import the body parser
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
 //Set up default mongoose connection
-const mongoDB = 'mongodb://127.0.0.1/posts';
-//cors 
+const mongoDB = 'mongodb://127.0.0.1/users';
+//cors
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 mongoose.connect(mongoDB);
@@ -19,39 +17,37 @@ const db = mongoose.connection;
 
 const Schema = mongoose.Schema;
 
-
 const postSchema = new Schema({
-   post: String
+    post: String
 });
 
 const usersSchema = new Schema({
-  username: String,
-  password: String
-})
-const PostModel = mongoose.model("PostModel", postSchema);
-const UserModel = mongoose.model("UserModel", usersSchema);
+    username: String,
+    password: String
+});
+const PostModel = mongoose.model('PostModel', postSchema);
+const UserModel = mongoose.model('UserModel', usersSchema);
 // using additional libraries
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 //
 
 //post request
 app.post('/makeApost', createPost);
 
-function createPost(req, res){
-  let post= req.body;
-  console.log(post);
-  PostModel.create(post).then(
-  function(postObj){
-    console.log(postObj);
-    res.sendStatus(200);
-  },
-    function(err){
-    res.sendStatus(400);
-      
-    }
-  );
+function createPost(req, res) {
+    let post = req.body;
+    console.log(post);
+    PostModel.create(post).then(
+        function(postObj) {
+            console.log(postObj);
+            res.sendStatus(200);
+        },
+        function(err) {
+            res.sendStatus(400);
+        }
+    );
 }
 
 //
@@ -59,52 +55,56 @@ function createPost(req, res){
 //Get all posts
 app.get('/getAllPosts', getAllPosts);
 
-function getAllPosts(req, res){
-    PostModel.find({}).then((posts)=>{
-      res.json(posts);
-
-    },
-    (err)=>{
-      res.sendStatus(400)
-    }
-  )
+function getAllPosts(req, res) {
+    PostModel.find({}).then(
+        posts => {
+            res.json(posts);
+        },
+        err => {
+            res.sendStatus(400);
+        }
+    );
 }
 //Edit a post
 
 app.put('/editApost', editApost);
 
 function editApost(req, res) {
-  const { _id: id, ...post } = req.body;
-  PostModel.findByIdAndUpdate(id, { $set: post }).then(updatedPost => {
-    res.json(updatedPost);
-  },
-  error => {
-    res.sendStatus(400);
-  });
-
+    const { _id: id, ...post } = req.body;
+    PostModel.findByIdAndUpdate(id, { $set: post }).then(
+        updatedPost => {
+            res.json(updatedPost);
+        },
+        error => {
+            res.sendStatus(400);
+        }
+    );
 }
 // Delete a post
 app.delete('/post/:id', deleteApost);
 
 function deleteApost(req, res) {
-  PostModel.findByIdAndDelete(req.params.id).then(() => {
-    res.sendStatus(200);
-  },
-  error => {
-    res.sendStatus(400);
-  });
-
+    PostModel.findByIdAndDelete(req.params.id).then(
+        () => {
+            res.sendStatus(200);
+        },
+        error => {
+            res.sendStatus(400);
+        }
+    );
 }
 
-
-//creat account 
+//creat account
 
 app.post('/createAccount', createAccount);
 
 function createAccount(req, res){
-  UserModel.findOne({username: req.body.username}).then((res)=>{
-        return  Promise.reject("user allready exists")
-  }).catch(() => bcrypt.hash(req.body.password, 10))
+  UserModel.count({ username: req.body.username })
+  .then(count => {
+    if(count)
+       return Promise.reject("user already exists")
+  })
+  .then(() => bcrypt.hash(req.body.password, 10))
   .then(password => UserModel.create({ username: req.body.username, password }))
   .then(userObj => {
     console.log(userObj);
@@ -116,7 +116,23 @@ function createAccount(req, res){
   });
 }
 
+app.post('/login', loginAccount);
+
+function loginAccount(req, res) {
+  UserModel.findOne({ username: req.body.username })
+    .then(user => {
+      if(!user) return Promise.reject("No such user found");
+      return bcrypt.compare(req.body.password, user.password)
+        .then(result => result ? user : Promise.reject("The passwords did not match!"));
+    })
+    .then(user => res.json(user))
+    .catch(err => {
+      console.error(err);
+      res.status(400).json({ error: err });
+    });
+}
+
 //Bind connection to error event (to get notification of connection errors)
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-app.listen(8000, () => console.log('Example app listening on port 8000!'))
+app.listen(8000, () => console.log('Example app listening on port 8000!'));
