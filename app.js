@@ -18,7 +18,9 @@ const db = mongoose.connection;
 const Schema = mongoose.Schema;
 
 const postSchema = new Schema({
-    post: String
+    title: String,
+    body: String,
+    imagePath: String
 });
 
 const usersSchema = new Schema({
@@ -98,38 +100,45 @@ function deleteApost(req, res) {
 
 app.post('/createAccount', createAccount);
 
-function createAccount(req, res){
-  UserModel.count({ username: req.body.username })
-  .then(count => {
-    if(count)
-       return Promise.reject("user already exists")
-  })
-  .then(() => bcrypt.hash(req.body.password, 10))
-  .then(password => UserModel.create({ username: req.body.username, password }))
-  .then(userObj => {
-    console.log(userObj);
-    res.sendStatus(200);
-  })
-  .catch(err => {
-    console.error(err);
-    res.status(400).json({ error: err });
-  });
+function createAccount(req, res) {
+    UserModel.count({ username: req.body.username })
+        .then(count => {
+            if (count) return Promise.reject('user already exists');
+        })
+        .then(() => bcrypt.hash(req.body.password, 10))
+        .then(password =>
+            UserModel.create({ username: req.body.username, password })
+        )
+        .then(userObj => {
+            console.log(userObj);
+            res.sendStatus(200);
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(400).json({ error: err });
+        });
 }
 
 app.post('/login', loginAccount);
 
 function loginAccount(req, res) {
-  UserModel.findOne({ username: req.body.username })
-    .then(user => {
-      if(!user) return Promise.reject("No such user found");
-      return bcrypt.compare(req.body.password, user.password)
-        .then(result => result ? user : Promise.reject("The passwords did not match!"));
-    })
-    .then(user => res.json(user))
-    .catch(err => {
-      console.error(err);
-      res.status(400).json({ error: err });
-    });
+    UserModel.findOne({ username: req.body.username })
+        .then(user => {
+            if (!user) return Promise.reject('No such user found');
+            return bcrypt
+                .compare(req.body.password, user.password)
+                .then(
+                    result =>
+                        result
+                            ? user
+                            : Promise.reject('The passwords did not match!')
+                );
+        })
+        .then(user => res.json(user))
+        .catch(err => {
+            console.error(err);
+            res.status(400).json({ error: err });
+        });
 }
 
 //Bind connection to error event (to get notification of connection errors)
