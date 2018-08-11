@@ -35,6 +35,103 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 //
 
+
+// weather app 
+app.get('/weather', generateFakeWeatherData);
+
+
+
+function randomWeather(){
+    let weather = ["cloudy", "sunny", "rainy", "snowy"]
+    return weather[Math.floor(Math.random(0) * 4)]
+  }
+
+  function getRandomMinTemp(weatherType){
+    if (weatherType === "cloudy"){
+        minTemp = Math.floor(Math.random() * 12) + 1  
+        return minTemp;
+    } else if (weatherType === "sunny"){
+        minTemp = Math.floor(Math.random() * 20) + 10
+        return minTemp;
+    } else if (weatherType === "rainy") {
+        minTemp = Math.floor(Math.random() * 6) + 1
+        return minTemp;
+    } else if (weatherType === "snowy") {
+        minTemp = Math.floor(Math.random() * 3) -10
+        return minTemp;
+    }
+}
+
+
+function getRandomMaxTemp(weatherType){
+if (weatherType === "cloudy"){
+    maxTemp = Math.floor(Math.random() * 12) + getRandomMinTemp("cloudy") 
+    return maxTemp;
+} else if (weatherType === "sunny"){
+    maxTemp = Math.floor(Math.random() * 20) + getRandomMinTemp("sunny")
+    return maxTemp;
+} else if (weatherType === "rainy") {
+    maxTemp = Math.floor(Math.random() * 6) + getRandomMinTemp("rainy")
+    return maxTemp;
+} else if (weatherType === "snowy") {
+    maxTemp = Math.floor(Math.random() * 3) + getRandomMinTemp("snowy")
+    return maxTemp;
+}
+}
+
+     
+
+    
+
+function DaysWeatherGenerator(){
+    let m = randomWeather()
+    let t = randomWeather()
+    let w = randomWeather()
+    let th = randomWeather()
+    let f = randomWeather()
+         let arrayOfObjects = [
+             { monday: {
+                weather: m,
+                minTemp: getRandomMinTemp(m),
+                maxTemp: getRandomMaxTemp(m)
+            }},
+             { tuesday: {
+                weather: t,
+                minTemp: getRandomMinTemp(t),
+                maxTemp: getRandomMaxTemp(t)
+             }},
+             {wednesday: {
+                weather: w,
+                minTemp: getRandomMinTemp(w),
+                maxTemp: getRandomMaxTemp(w)
+             }},
+             { thursday: {
+                weather: th,
+                minTemp: getRandomMinTemp(th),
+                maxTemp: getRandomMaxTemp(th)
+             }},
+             { friday: {
+                weather: f,
+                minTemp: getRandomMinTemp(f),
+                maxTemp: getRandomMaxTemp(f)
+             }}
+            
+            ]
+         return arrayOfObjects
+    }
+ 
+function generateFakeWeatherData(req, res){
+    
+    let daysWeather = new DaysWeatherGenerator( );
+
+    return  res.json(daysWeather);
+}
+
+
+
+
+//
+
 //post request
 app.post('/makeApost', createPost);
 
