@@ -84,37 +84,33 @@ if (weatherType === "cloudy"){
     
 
 function DaysWeatherGenerator(){
-    let m = randomWeather()
-    let t = randomWeather()
-    let w = randomWeather()
-    let th = randomWeather()
-    let f = randomWeather()
+    let d1 = randomWeather()
+    let d2 = randomWeather()
+    let d3 = randomWeather()
+    let d4 = randomWeather()
+    let d5 = randomWeather()
          let arrayOfObjects = [
-             { monday: {
-                weather: m,
-                minTemp: getRandomMinTemp(m),
-                maxTemp: getRandomMaxTemp(m)
-            }},
-             { tuesday: {
-                weather: t,
-                minTemp: getRandomMinTemp(t),
-                maxTemp: getRandomMaxTemp(t)
-             }},
-             {wednesday: {
-                weather: w,
-                minTemp: getRandomMinTemp(w),
-                maxTemp: getRandomMaxTemp(w)
-             }},
-             { thursday: {
-                weather: th,
-                minTemp: getRandomMinTemp(th),
-                maxTemp: getRandomMaxTemp(th)
-             }},
-             { friday: {
-                weather: f,
-                minTemp: getRandomMinTemp(f),
-                maxTemp: getRandomMaxTemp(f)
-             }}
+              {
+                weather: d1,
+                minTemp: getRandomMinTemp(d1),
+                maxTemp: getRandomMaxTemp(d1)
+              },{
+                weather: d2,
+                minTemp: getRandomMinTemp(d2),
+                maxTemp: getRandomMaxTemp(d2)
+             },{
+                weather: d3,
+                minTemp: getRandomMinTemp(d3),
+                maxTemp: getRandomMaxTemp(d3)
+             },{
+                weather: d4,
+                minTemp: getRandomMinTemp(d4),
+                maxTemp: getRandomMaxTemp(d4)
+             },{
+                weather: d5,
+                minTemp: getRandomMinTemp(d5),
+                maxTemp: getRandomMaxTemp(d5)
+             }
             
             ]
          return arrayOfObjects
